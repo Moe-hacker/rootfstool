@@ -25,15 +25,41 @@ LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images/images"
 function format_html() {
   # Format html to text and filter out valid information.
   # Modified from tmoe.
-  if [[ ${LXC_MIRROR} == "bfsu" ]]; then
+  case ${LXC_MIRROR} in
+  "bfsu")
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
-  else
+    ;;
+  "main" | "")
     echo "$*" | grep "href" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.'
-  fi
+    ;;
+  esac
 }
 function show_helps() {
   echo -e "${MAIN_COLOR}Usage:"
   echo -e "  rootfstool <command> [<args>]"
+  echo
+  echo -e "Commands:"
+  echo -e "  version,v    #Show version info"
+  echo -e "  help,h       #Show helps"
+  echo -e "  list,l       #List all distros from lxc-image mirror"
+  echo -e "  search,s     #Search available versions of distro"
+  echo -e "  url,u        #Get rootfs download link"
+  echo -e "  exec,e       #Exec a function *Only for developer"
+  echo
+  echo -e "Args:"
+  echo -e "--distro,-d    #Specify os distro"
+  echo -e "--arch,-a      #Specify cpu architecture"
+  echo -e "--version,-v   #Specify distro version"
+  echo -e "--mirror,-m    #Specify the mirror, available mirrors are: main bfsu"
+  echo
+  echo -e "Some examples:"
+  echo -e "#List available arm64 OS distros"
+  echo -e "\033[32mrootfstool \033[33mlist \033[34m-a ${MAIN_COLOR}arm64 \033[34m-m ${MAIN_COLOR}bfsu"
+  echo -e "${MAIN_COLOR}#Search available versions of Ubuntu arm64"
+  echo -e "\033[32mrootfstool \033[33msearch \033[34m-a ${MAIN_COLOR}arm64 \033[34m-d ${MAIN_COLOR}ubuntu \033[34m-m ${MAIN_COLOR}bfsu"
+  echo -e "${MAIN_COLOR}#Get rootfs download link of Ubuntu bionic arm64"
+  echo -e "\033[32mrootfstool \033[33murl \033[34m-a ${MAIN_COLOR}arm64 \033[34m-d ${MAIN_COLOR}ubuntu \033[34m-v ${MAIN_COLOR}bionic \033[34m-m ${MAIN_COLOR}bfsu"
+  printf "\033[0m"
 }
 function show_version_info() {
   echo -e "${MAIN_COLOR}rootfstool version v0.0-dev"
@@ -76,15 +102,18 @@ function list_lxc_distros() {
     get_cpu_arch
   fi
   export LXC_MIRROR=${LXC_MIRROR}
-  if [[ ${LXC_MIRROR} == "bfsu" ]]; then
+  case ${LXC_MIRROR} in
+  "bfsu")
     MIRROR=${LXC_MIRROR_BFSU}
-  else
+    ;;
+  "main" | "")
     MIRROR=${LXC_MIRROR_MAIN}
-  fi
+    ;;
+  esac
   for DISTRO in $(format_html $(curl -sL ${MIRROR})); do
     for VERSION in $(format_html $(curl -sL ${MIRROR}/$DISTRO)); do
       if [[ $(curl -sL ${MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH} | grep "404 Not Found") = "" ]]; then
-        echo -e "${MAIN_COLOR}${DISTRO}"
+        echo -e "${MAIN_COLOR}[${CPU_ARCH}] ${DISTRO}"
         break
       else
         continue
@@ -103,11 +132,14 @@ function list_distro_version() {
     get_cpu_arch
   fi
   export LXC_MIRROR=${LXC_MIRROR}
-  if [[ ${LXC_MIRROR} == "bfsu" ]]; then
+  case ${LXC_MIRROR} in
+  "bfsu")
     MIRROR=${LXC_MIRROR_BFSU}
-  else
+    ;;
+  "main" | "")
     MIRROR=${LXC_MIRROR_MAIN}
-  fi
+    ;;
+  esac
   if [[ $(curl -sL ${MIRROR}/${DISTRO} | grep "404 Not Found") != "" ]]; then
     echo -e "\033[31mOS distro not found.\033[0m"
     exit 1
@@ -115,7 +147,7 @@ function list_distro_version() {
   for VERSION in $(format_html $(curl -sL ${MIRROR}/${DISTRO})); do
     if [[ $(curl -sL ${MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH} | grep "404 Not Found") = "" ]]; then
       VERSION_FOUND=1
-      echo -e "${MAIN_COLOR}${DISTRO} [${CPU_ARCH}] : ${VERSION}"
+      echo -e "${MAIN_COLOR}[${CPU_ARCH}] ${DISTRO} : ${VERSION}"
     fi
   done
   if [[ ${VERSION_FOUND} != 1 ]]; then
@@ -130,11 +162,14 @@ function get_rootfs_url() {
     get_cpu_arch
   fi
   export LXC_MIRROR=${LXC_MIRROR}
-  if [[ ${LXC_MIRROR} == "bfsu" ]]; then
+  case ${LXC_MIRROR} in
+  "bfsu")
     MIRROR=${LXC_MIRROR_BFSU}
-  else
+    ;;
+  "main" | "")
     MIRROR=${LXC_MIRROR_MAIN}
-  fi
+    ;;
+  esac
   if [[ ${DISTRO} = "gentoo" ]]; then
     VERSION2="openrc"
   else
