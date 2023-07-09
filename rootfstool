@@ -111,7 +111,7 @@ function get_cpu_arch() {
   fi
   export CPU_ARCH=${ARCH_TYPE}
 }
-function list_lxc_distros() {
+function list_distros() {
   # It will print the distro name if any version of distro is available for current ${CPU_ARCH}
   # $MIRROR and $CPU_ARCH are defined at main()
   if [[ ${CPU_ARCH} == "" ]]; then
@@ -128,6 +128,12 @@ function list_lxc_distros() {
         continue
       fi
     done
+  done
+  for VERSION in $(format_html $(curl -sL ${PARROTOS_MIRROR})); do
+    if [[ $(curl -sL ${PARROTOS_MIRROR}/${VERSION} | grep "tar.xz" | grep ${CPU_ARCH} | grep -v "torrent" | head -n 1) != "" ]]; then
+      echo -e "${MAIN_COLOR}[${CPU_ARCH}] parrot"
+      break
+    fi
   done
   printf "\033[0m"
 }
@@ -240,7 +246,7 @@ function main() {
     exit 0
     ;;
   "list" | "l")
-    TO_EXEC="list_lxc_distros"
+    TO_EXEC="list_distros"
     ;;
   "search" | "s")
     TO_EXEC="list_distro_version"
