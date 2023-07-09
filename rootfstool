@@ -16,21 +16,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# 跟着沨鸾学shell，学到最后只会喵喵喵
 ROOTFSTOOL_VERSION="1.0"
 RGB_MAIN_COLOR="254;228;208"
 MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
 LXC_MIRROR_MAIN="http://images.linuxcontainers.org/images"
 LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images/images"
 function format_html() {
-  # Format html to text and filter out valid information.
-  # Modified from tmoe.
+  # Format html to text and filter out valid information
+  # Modified from tmoe
   case ${LXC_MIRROR} in
   "bfsu")
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
     ;;
   "main" | "")
     echo "$*" | grep "href" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.'
+    ;;
+  esac
+}
+function select_mirror() {
+  case ${LXC_MIRROR} in
+  "bfsu")
+    export MIRROR=${LXC_MIRROR_BFSU}
+    ;;
+  "main" | "")
+    export MIRROR=${LXC_MIRROR_MAIN}
     ;;
   esac
 }
@@ -65,8 +74,8 @@ function show_version_info() {
   echo -e "${MAIN_COLOR}rootfstool version ${ROOTFSTOOL_VERSION}"
 }
 function get_cpu_arch() {
-  # It will create a global variable CPU_ARCH.
-  # From tmoe.
+  # It will create a global variable CPU_ARCH
+  # From tmoe
   if [[ $(command -v dpkg) && $(command -v apt-get) ]]; then
     DPKG_ARCH=$(dpkg --print-architecture)
     case ${DPKG_ARCH} in
@@ -96,20 +105,13 @@ function get_cpu_arch() {
   export CPU_ARCH=${ARCH_TYPE}
 }
 function list_lxc_distros() {
-  # It will print the distro name if any version of distro is available for current cpu arch.
+  # It will print the distro name if any version of distro is available for current ${CPU_ARCH}
   # $LXC_MIRROR and $CPU_ARCH are defined at main()
   if [[ ${CPU_ARCH} == "" ]]; then
     get_cpu_arch
   fi
   export LXC_MIRROR=${LXC_MIRROR}
-  case ${LXC_MIRROR} in
-  "bfsu")
-    MIRROR=${LXC_MIRROR_BFSU}
-    ;;
-  "main" | "")
-    MIRROR=${LXC_MIRROR_MAIN}
-    ;;
-  esac
+  select_mirror
   for DISTRO in $(format_html $(curl -sL ${MIRROR})); do
     for VERSION in $(format_html $(curl -sL ${MIRROR}/$DISTRO)); do
       if [[ $(curl -sL ${MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH} | grep "404 Not Found") = "" ]]; then
@@ -123,6 +125,7 @@ function list_lxc_distros() {
   printf "\033[0m"
 }
 function list_distro_version() {
+  # If the version of the distro is available, print it
   # $LXC_MIRROR, $DISTRO and $CPU_ARCH are defined at main()
   if [[ ${DISTRO} == "" ]]; then
     echo -e "\033[31mOS distro not set.\033[0m"
@@ -132,14 +135,7 @@ function list_distro_version() {
     get_cpu_arch
   fi
   export LXC_MIRROR=${LXC_MIRROR}
-  case ${LXC_MIRROR} in
-  "bfsu")
-    MIRROR=${LXC_MIRROR_BFSU}
-    ;;
-  "main" | "")
-    MIRROR=${LXC_MIRROR_MAIN}
-    ;;
-  esac
+  select_mirror
   if [[ $(curl -sL ${MIRROR}/${DISTRO} | grep "404 Not Found") != "" ]]; then
     echo -e "\033[31mOS distro not found.\033[0m"
     exit 1
@@ -157,19 +153,13 @@ function list_distro_version() {
   printf "\033[0m"
 }
 function get_rootfs_url() {
+  # Get rootfs download link of Specified $DISTRO and $VERSION
   # $LXC_MIRROR, $DISTRO, $VERSION and $CPU_ARCH are defined at main()
   if [[ ${CPU_ARCH} == "" ]]; then
     get_cpu_arch
   fi
   export LXC_MIRROR=${LXC_MIRROR}
-  case ${LXC_MIRROR} in
-  "bfsu")
-    MIRROR=${LXC_MIRROR_BFSU}
-    ;;
-  "main" | "")
-    MIRROR=${LXC_MIRROR_MAIN}
-    ;;
-  esac
+  select_mirror
   if [[ ${DISTRO} = "gentoo" ]]; then
     VERSION2="openrc"
   else
@@ -237,3 +227,9 @@ function main() {
   ${TO_EXEC}
 }
 main "$@"
+#  ██╗ ██╗  ███████╗   ████╗   ███████╗
+# ████████╗ ██╔════╝ ██╔═══██╗ ██╔════╝
+# ╚██╔═██╔╝ █████╗   ██║   ██║ █████╗
+# ████████╗ ██╔══╝   ██║   ██║ ██╔══╝
+# ╚██╔═██╔╝ ███████╗ ╚██████╔╝ ██║
+#  ╚═╝ ╚═╝  ╚══════╝  ╚═════╝  ╚═╝
