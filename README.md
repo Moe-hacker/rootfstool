@@ -9,7 +9,6 @@ Rootfstool is a tool to get linux container rootfs.
 It can get rootfs url from:
 - Lxc-image mirror
 - ParrotOS mirror
-- ~~Manjaro-arm(OSDN)~~
 ## Usage:
 ```
 rootfstool <command> [<args>]
@@ -42,6 +41,9 @@ Get rootfs download link of Ubuntu bionic arm64
 ```
 rootfstool url -a arm64 -d ubuntu -v bionic -m bfsu
 ```
+## Contributing:
+See :      
+**[<kbd> <br> Contributing <br> </kbd>](https://github.com/Moe-hacker/rootfstool/blob/main/CONTRIBUTING.md)**
 ## Thanks to:
 [tmoe](https://github.com/2moe/tmoe)    
 (TMOE, More Optional Environments.)      
