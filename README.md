@@ -6,9 +6,9 @@
 This project is still under development   
 ## About:
 Rootfstool is a tool to get linux container rootfs.       
-It can get rootfs from:
+It can get rootfs url from:
 - Lxc-image mirror
-- ~~ParrotOS mirror~~
+- ParrotOS mirror
 - ~~Manjaro-arm(OSDN)~~
 ## Usage:
 ```
