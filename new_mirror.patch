@@ -1,0 +1,54 @@
+diff --git a/README.md b/README.md
+index 5ea5a6c..4a81056 100644
+--- a/README.md
++++ b/README.md
+@@ -26,7 +26,7 @@ Args:
+ --distro,-d    #Specify os distro
+ --arch,-a      #Specify cpu architecture
+ --version,-v   #Specify distro version
+---mirror,-m    #Specify the mirror, available mirrors are: main bfsu
++--mirror,-m    #Specify the mirror, available mirrors are: main bfsu tuna
+ 
+ ```
+ Some examples:   
+diff --git a/rootfstool b/rootfstool
+index 940b236..cf203c2 100755
+--- a/rootfstool
++++ b/rootfstool
+@@ -24,13 +24,15 @@ RGB_MAIN_COLOR="254;228;208"
+ MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
+ LXC_MIRROR_MAIN="http://images.linuxcontainers.org/images"
+ LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images/images"
++LXC_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/lxc-images/images"
+ PARROTOS_MIRROR_MAIN="http://archive.parrotsec.org/parrot/iso"
+ PARROTOS_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/parrot/iso"
++PARROTOS_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/parrot/iso"
+ function format_html() {
+   # Format html to text and filter out valid information
+   # Modified from tmoe
+   case ${MIRROR} in
+-  "bfsu")
++  "bfsu" | "tuna")
+     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
+     ;;
+   "main" | "")
+@@ -44,6 +46,10 @@ function select_mirror() {
+     export LXC_MIRROR=${LXC_MIRROR_BFSU}
+     export PARROTOS_MIRROR=${PARROTOS_MIRROR_BFSU}
+     ;;
++  "tuna")
++    export LXC_MIRROR=${LXC_MIRROR_TUNA}
++    export PARROTOS_MIRROR=${PARROTOS_MIRROR_TUNA}
++    ;;
+   "main" | "")
+     export LXC_MIRROR=${LXC_MIRROR_MAIN}
+     export PARROTOS_MIRROR=${PARROTOS_MIRROR_MAIN}
+@@ -66,7 +72,7 @@ function show_helps() {
+   echo -e "--distro,-d    #Specify os distro"
+   echo -e "--arch,-a      #Specify cpu architecture"
+   echo -e "--version,-v   #Specify distro version"
+-  echo -e "--mirror,-m    #Specify the mirror, available mirrors are: main bfsu"
++  echo -e "--mirror,-m    #Specify the mirror, available mirrors are: main bfsu tuna"
+   echo
+   echo -e "Some examples:"
+   echo -e "#List available arm64 OS distros"
