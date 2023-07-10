@@ -63,7 +63,7 @@ function show_helps() {
   echo -e "Commands:"
   echo -e "  version,v    #Show version info"
   echo -e "  help,h       #Show helps"
-  echo -e "  list,l       #List all distros from lxc-image mirror"
+  echo -e "  list,l       #List all distros"
   echo -e "  search,s     #Search available versions of distro"
   echo -e "  url,u        #Get rootfs download link"
   echo -e "  download,d   #Download rootfs as rootfs.tar.xz"
