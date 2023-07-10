@@ -19,7 +19,7 @@
 #########
 #2>/dev/null
 #########
-ROOTFSTOOL_VERSION="1.1"
+ROOTFSTOOL_VERSION="1.2"
 RGB_MAIN_COLOR="254;228;208"
 MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
 LXC_MIRROR_MAIN="http://images.linuxcontainers.org/images"
@@ -66,6 +66,7 @@ function show_helps() {
   echo -e "  list,l       #List all distros from lxc-image mirror"
   echo -e "  search,s     #Search available versions of distro"
   echo -e "  url,u        #Get rootfs download link"
+  echo -e "  download,d   #Download rootfs as rootfs.tar.xz"
   echo -e "  exec,e       #Exec a function *Only for developer"
   echo
   echo -e "Args:"
@@ -220,6 +221,24 @@ function get_rootfs_url() {
   URL=${LXC_MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH}/${VERSION2}/${TIME}/rootfs.tar.xz
   echo ${URL}
 }
+function download_rootfs() {
+  # $MIRROR, $DISTRO, $VERSION and $CPU_ARCH are defined at main()
+  rm -f rootfs.tar.xz
+  if [[ ${DISTRO} == "parrot" ]]; then
+    rm -f Parrot-rootfs*
+    wget $(get_parrotos_url 2>/dev/null)
+    echo -e "${MAIN_COLOR}Repacking rootfs..."
+    sleep 2s
+    proot -0 tar -xvf $(ls Parrot-rootfs*)
+    cd parrot-${CPU_ARCH}
+    proot -0 tar -cvJf ../rootfs.tar.xz .
+    cd ..
+    proot -0 rm -rf parrot-${CPU_ARCH}
+    rm -f Parrot-rootfs*
+    return 0
+  fi
+  wget $(get_rootfs_url)
+}
 function get_parrotos_url() {
   if [[ ${CPU_ARCH} == "" ]]; then
     get_cpu_arch
@@ -261,6 +280,9 @@ function main() {
     ;;
   "url" | "u")
     TO_EXEC="get_rootfs_url"
+    ;;
+  "download" | "d")
+    TO_EXEC="download_rootfs"
     ;;
   esac
   shift
