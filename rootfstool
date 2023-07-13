@@ -34,8 +34,11 @@ function format_html() {
   # Format html to text and filter out valid information
   # Modified from tmoe
   case ${MIRROR} in
-  "bfsu" | "tuna" | "nju")
+  "bfsu" | "tuna")
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
+    ;;
+  "nju")
+    echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"|grep -v "http"
     ;;
   "main" | "")
     echo "$*" | grep "href" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.'
