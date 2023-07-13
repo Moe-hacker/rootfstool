@@ -25,14 +25,16 @@ MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
 LXC_MIRROR_MAIN="http://images.linuxcontainers.org/images"
 LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images/images"
 LXC_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/lxc-images/images"
+LXC_MIRROR_NJU="https://mirror.nju.edu.cn/lxc-images/images"
 PARROTOS_MIRROR_MAIN="http://archive.parrotsec.org/parrot/iso"
 PARROTOS_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/parrot/iso"
 PARROTOS_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/parrot/iso"
+PARROTOS_MIRROR_NJU="https://mirror.nju.edu.cn/parrot/iso"
 function format_html() {
   # Format html to text and filter out valid information
   # Modified from tmoe
   case ${MIRROR} in
-  "bfsu" | "tuna")
+  "bfsu" | "tuna" | "nju")
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
     ;;
   "main" | "")
@@ -49,6 +51,10 @@ function select_mirror() {
   "tuna")
     export LXC_MIRROR=${LXC_MIRROR_TUNA}
     export PARROTOS_MIRROR=${PARROTOS_MIRROR_TUNA}
+    ;;
+  "nju")
+    export LXC_MIRROR=${LXC_MIRROR_NJU}
+    export PARROTOS_MIRROR=${PARROTOS_MIRROR_NJU}
     ;;
   "main" | "")
     export LXC_MIRROR=${LXC_MIRROR_MAIN}
@@ -73,7 +79,7 @@ function show_helps() {
   echo -e "--distro,-d    #Specify os distro"
   echo -e "--arch,-a      #Specify cpu architecture"
   echo -e "--version,-v   #Specify distro version"
-  echo -e "--mirror,-m    #Specify the mirror, available mirrors are: main bfsu tuna"
+  echo -e "--mirror,-m    #Specify the mirror, available mirrors are: main bfsu tuna nju"
   echo
   echo -e "Some examples:"
   echo -e "#List available arm64 OS distros"
