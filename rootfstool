@@ -16,16 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#########
-#2>/dev/null
-#########
-ROOTFSTOOL_VERSION="1.2"
+#########Changelog########
+# From 1.3, I used the file meta/1.0/index-system instead of HTML for better performance and compatibility.
+##########################
+ROOTFSTOOL_VERSION="1.3"
 RGB_MAIN_COLOR="254;228;208"
 MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
-LXC_MIRROR_MAIN="http://images.linuxcontainers.org/images"
-LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images/images"
-LXC_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/lxc-images/images"
-LXC_MIRROR_NJU="https://mirror.nju.edu.cn/lxc-images/images"
+LXC_MIRROR_MAIN="http://images.linuxcontainers.org"
+LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images"
+LXC_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/lxc-images"
+LXC_MIRROR_NJU="https://mirror.nju.edu.cn/lxc-images"
 PARROTOS_MIRROR_MAIN="http://archive.parrotsec.org/parrot/iso"
 PARROTOS_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/parrot/iso"
 PARROTOS_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/parrot/iso"
@@ -137,15 +137,8 @@ function list_distros() {
   fi
   export MIRROR=${MIRROR}
   select_mirror
-  for DISTRO in $(format_html $(curl -sL ${LXC_MIRROR})); do
-    for VERSION in $(format_html $(curl -sL ${LXC_MIRROR}/$DISTRO)); do
-      if [[ $(curl -sL ${LXC_MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH} | grep "404 Not Found") = "" ]]; then
-        echo -e "${MAIN_COLOR}[${CPU_ARCH}] ${DISTRO}"
-        break
-      else
-        continue
-      fi
-    done
+  for i in $(curl -sL ${LXC_MIRROR}/meta/1.0/index-system | grep ${CPU_ARCH} | grep -v cloud | cut -d ";" -f 1 | uniq); do
+    echo -e "${MAIN_COLOR}[${CPU_ARCH}] $i"
   done
   for VERSION in $(format_html $(curl -sL ${PARROTOS_MIRROR})); do
     if [[ $(curl -sL ${PARROTOS_MIRROR}/${VERSION} | grep "tar.xz" | grep ${CPU_ARCH} | grep -v "torrent" | head -n 1) != "" ]]; then
@@ -171,20 +164,13 @@ function list_distro_version() {
   fi
   export MIRROR=${MIRROR}
   select_mirror
-  if [[ $(curl -sL ${LXC_MIRROR}/${DISTRO} | grep "404 Not Found") != "" ]]; then
-    echo -e "\033[31mOS distro not found.\033[0m"
-    exit 1
-  fi
-  for VERSION in $(format_html $(curl -sL ${LXC_MIRROR}/${DISTRO})); do
-    if [[ $(curl -sL ${LXC_MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH} | grep "404 Not Found") = "" ]]; then
-      VERSION_FOUND=1
-      echo -e "${MAIN_COLOR}[${CPU_ARCH}] ${DISTRO} : ${VERSION}"
-    fi
-  done
-  if [[ ${VERSION_FOUND} != 1 ]]; then
+  if [[ $(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${CPU_ARCH}) == "" ]]; then
     echo -e "\033[31mCould not found image for current cpu architecture.\033[0m"
     exit 1
   fi
+  for i in $(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${CPU_ARCH} | grep -v cloud | cut -d ";" -f 1,2); do
+    echo -e "${MAIN_COLOR}[${CPU_ARCH}] $(echo $i | cut -d ";" -f 1) : $(echo $i | cut -d ";" -f 2)"
+  done
   printf "\033[0m"
 }
 function list_parrotos_version() {
@@ -217,18 +203,8 @@ function get_rootfs_url() {
   fi
   export MIRROR=${MIRROR}
   select_mirror
-  if [[ ${DISTRO} = "gentoo" ]]; then
-    VERSION2="openrc"
-  else
-    VERSION2="default"
-  fi
-  TIME=$(format_html $(curl -sL ${LXC_MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH}/${VERSION2}) | tail -n1)
-  if [[ ${TIME} = "" ]]; then
-    echo -e "\033[31mError: Can not find rootfs !\033[0m"
-    exit 1
-  fi
-  URL=${LXC_MIRROR}/${DISTRO}/${VERSION}/${CPU_ARCH}/${VERSION2}/${TIME}/rootfs.tar.xz
-  echo ${URL}
+  PATH=$(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${CPU_ARCH}|grep -v cloud|tail -n 1|cut -d ";" -f 6)
+  echo ${LXC_MIRROR}${PATH}rootfs.tar.xz
 }
 function download_rootfs() {
   # $MIRROR, $DISTRO, $VERSION and $CPU_ARCH are defined at main()
