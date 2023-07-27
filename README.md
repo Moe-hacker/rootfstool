@@ -20,6 +20,7 @@ Commands:
   version,v    #Show version info
   help,h       #Show helps
   list,l       #List all distros
+  mirrorlist,m #List mirrors
   search,s     #Search available versions of distro
   url,u        #Get rootfs download link
   download,d   #Download rootfs as rootfs.tar.xz
