@@ -38,7 +38,7 @@ function format_html() {
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
     ;;
   "nju")
-    echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"|grep -v "http"
+    echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;" | grep -v "http"
     ;;
   "main" | "")
     echo "$*" | grep "href" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.'
@@ -62,6 +62,10 @@ function select_mirror() {
   "main" | "")
     export LXC_MIRROR=${LXC_MIRROR_MAIN}
     export PARROTOS_MIRROR=${PARROTOS_MIRROR_MAIN}
+    ;;
+  *)
+    echo -e "\033[31mUnknow mirror!\033[0m"
+    exit 1
     ;;
   esac
 }
@@ -203,7 +207,7 @@ function get_rootfs_url() {
   fi
   export MIRROR=${MIRROR}
   select_mirror
-  PATH=$(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${CPU_ARCH}|grep -v cloud|tail -n 1|cut -d ";" -f 6)
+  PATH=$(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${CPU_ARCH} | grep -v cloud | tail -n 1 | cut -d ";" -f 6)
   echo ${LXC_MIRROR}${PATH}rootfs.tar.xz
 }
 function download_rootfs() {
