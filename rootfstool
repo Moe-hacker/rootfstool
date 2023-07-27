@@ -19,7 +19,7 @@
 #########Changelog########
 # From 1.3, I used the file meta/1.0/index-system instead of HTML for better performance and compatibility.
 ##########################
-ROOTFSTOOL_VERSION="1.3"
+ROOTFSTOOL_VERSION="1.4"
 RGB_MAIN_COLOR="254;228;208"
 MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
 LXC_MIRROR_MAIN="http://images.linuxcontainers.org"
@@ -69,6 +69,14 @@ function select_mirror() {
     ;;
   esac
 }
+function list_mirrors() {
+  printf "${MAIN_COLOR}"
+  echo main
+  echo bfsu
+  echo tuna
+  echo nju
+  printf "\033[0m"
+}
 function show_helps() {
   echo -e "${MAIN_COLOR}Usage:"
   echo -e "  rootfstool <command> [<args>]"
@@ -77,6 +85,7 @@ function show_helps() {
   echo -e "  version,v    #Show version info"
   echo -e "  help,h       #Show helps"
   echo -e "  list,l       #List all distros"
+  echo -e "  mirrorlist,m #List mirrors"
   echo -e "  search,s     #Search available versions of distro"
   echo -e "  url,u        #Get rootfs download link"
   echo -e "  download,d   #Download rootfs as rootfs.tar.xz"
@@ -263,6 +272,10 @@ function main() {
     ;;
   "list" | "l")
     TO_EXEC="list_distros"
+    ;;
+  "mirrorlist" | "m")
+    list_mirrors
+    exit 0
     ;;
   "search" | "s")
     TO_EXEC="list_distro_version"
