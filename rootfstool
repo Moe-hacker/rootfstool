@@ -26,15 +26,17 @@ LXC_MIRROR_MAIN="http://images.linuxcontainers.org"
 LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images"
 LXC_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/lxc-images"
 LXC_MIRROR_NJU="https://mirror.nju.edu.cn/lxc-images"
+LXC_MIRROR_ISCAS="https://mirror.iscas.ac.cn/lxc-images"
 PARROTOS_MIRROR_MAIN="http://archive.parrotsec.org/parrot/iso"
 PARROTOS_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/parrot/iso"
 PARROTOS_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/parrot/iso"
 PARROTOS_MIRROR_NJU="https://mirror.nju.edu.cn/parrot/iso"
+PARROTOS_MIRROR_ISCAS="https://mirror.iscas.ac.cn/parrot/iso"
 function format_html() {
   # Format html to text and filter out valid information
   # Modified from tmoe
   case ${MIRROR} in
-  "bfsu" | "tuna")
+  "bfsu" | "tuna" | "iscas")
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
     ;;
   "nju")
@@ -59,6 +61,10 @@ function select_mirror() {
     export LXC_MIRROR=${LXC_MIRROR_NJU}
     export PARROTOS_MIRROR=${PARROTOS_MIRROR_NJU}
     ;;
+"iscas")
+    export LXC_MIRROR=${LXC_MIRROR_ISCAS}
+    export PARROTOS_MIRROR=${PARROTOS_MIRROR_ISCAS}
+    ;;
   "main" | "")
     export LXC_MIRROR=${LXC_MIRROR_MAIN}
     export PARROTOS_MIRROR=${PARROTOS_MIRROR_MAIN}
@@ -75,6 +81,7 @@ function list_mirrors() {
   echo bfsu
   echo tuna
   echo nju
+  echo iscas
   printf "\033[0m"
 }
 function show_helps() {
