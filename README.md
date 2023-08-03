@@ -30,7 +30,7 @@ Args:
 --distro,-d    #Specify os distro
 --arch,-a      #Specify cpu architecture
 --version,-v   #Specify distro version
---mirror,-m    #Specify the mirror, available mirrors are: main bfsu tuna nju
+--mirror,-m    #Specify the mirror, available mirrors are: main bfsu tuna nju iscas
 
 ```
 Some examples:   
