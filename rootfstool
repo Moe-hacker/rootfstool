@@ -36,7 +36,7 @@ function format_html() {
   # Format html to text and filter out valid information
   # Modified from tmoe
   case ${MIRROR} in
-  "bfsu" | "tuna" | "iscas" )
+  "bfsu" | "tuna" | "iscas")
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
     ;;
   "nju")
