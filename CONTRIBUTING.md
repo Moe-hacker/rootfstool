@@ -31,7 +31,7 @@ echo nju
 
 ...
 ```
-And the way to format its webpage(format_html is for parrotOS only since [v1.3](https://github.com/Moe-hacker/rootfstool/commit/6bf5c939c446c16197a481ed535b86f56ff4fb18))      
+And the way to format its webpage(format_html is for ParrotOS only since [v1.3](https://github.com/Moe-hacker/rootfstool/commit/6bf5c939c446c16197a481ed535b86f56ff4fb18))      
 ```
 function format_html() {
 

@@ -16,9 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-#########Changelog########
-# From 1.3, I used the file meta/1.0/index-system instead of HTML for better performance and compatibility.
-##########################
+#
 ROOTFSTOOL_VERSION="1.4"
 RGB_MAIN_COLOR="254;228;208"
 MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
@@ -33,6 +31,7 @@ PARROTOS_MIRROR_NJU="https://mirror.nju.edu.cn/parrot/iso"
 function format_html() {
   # Format html to text and filter out valid information
   # Modified from tmoe
+  # Only for ParrotOS now.
   case ${MIRROR} in
   "bfsu" | "tuna")
     echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
