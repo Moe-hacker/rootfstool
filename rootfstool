@@ -60,7 +60,7 @@ function select_mirror() {
     export LXC_MIRROR=${LXC_MIRROR_NJU}
     export PARROTOS_MIRROR=${PARROTOS_MIRROR_NJU}
     ;;
-"iscas")
+  "iscas")
     export LXC_MIRROR=${LXC_MIRROR_ISCAS}
     export PARROTOS_MIRROR=${PARROTOS_MIRROR_ISCAS}
     ;;
@@ -292,6 +292,10 @@ function main() {
   "download" | "d")
     TO_EXEC="download_rootfs"
     ;;
+  *)
+    show_helps
+    exit 1
+    ;;
   esac
   shift
   while [[ $1 ]]; do
@@ -311,6 +315,10 @@ function main() {
     "--mirror" | "-m")
       shift
       export MIRROR=$1
+      ;;
+    *)
+      show_helps
+      exit 1
       ;;
     esac
     shift
