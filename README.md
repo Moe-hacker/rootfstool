@@ -3,15 +3,11 @@
 
 -------- 
 ## About:
-Rootfstool is a tool to get linux container rootfs.       
-It can get rootfs from:
-- Lxc-image mirror
-- ParrotOS mirror
+Rootfstool is a tool to get linux container rootfs from Lxc-image mirrors.             
 ## Dependencies:
 - gawk
 - curl
 - wget
-- proot(only for ParrotOS)
 ## Usage:
 ```
 rootfstool <command> [<args>]
@@ -24,7 +20,7 @@ Commands:
   search,s     #Search available versions of distro
   url,u        #Get rootfs download link
   download,d   #Download rootfs as rootfs.tar.xz
-  exec,e       #Exec a function *Only for developer
+  exec,e       #Exec a built-in function *Only for developer
 
 Args:
 --distro,-d    #Specify os distro

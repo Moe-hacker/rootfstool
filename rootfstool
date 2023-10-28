@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 #
-ROOTFSTOOL_VERSION="1.4"
+ROOTFSTOOL_VERSION="1.5"
 RGB_MAIN_COLOR="254;228;208"
 MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
 LXC_MIRROR_MAIN="http://images.linuxcontainers.org"
@@ -25,48 +25,22 @@ LXC_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/lxc-images"
 LXC_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/lxc-images"
 LXC_MIRROR_NJU="https://mirror.nju.edu.cn/lxc-images"
 LXC_MIRROR_ISCAS="https://mirror.iscas.ac.cn/lxc-images"
-PARROTOS_MIRROR_MAIN="http://archive.parrotsec.org/parrot/iso"
-PARROTOS_MIRROR_BFSU="https://mirrors.bfsu.edu.cn/parrot/iso"
-PARROTOS_MIRROR_TUNA="https://mirrors.tuna.tsinghua.edu.cn/parrot/iso"
-PARROTOS_MIRROR_NJU="https://mirror.nju.edu.cn/parrot/iso"
-PARROTOS_MIRROR_ISCAS="https://mirror.iscas.ac.cn/parrot/iso"
-function format_html() {
-  # Format html to text and filter out valid information
-  # Modified from tmoe
-  # Only for ParrotOS now.
-  case ${MIRROR} in
-  "bfsu" | "tuna" | "iscas")
-    echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;"
-    ;;
-  "nju")
-    echo "$*" | grep "href" | grep "title" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.' | grep -v "&amp;" | grep -v "http"
-    ;;
-  "main" | "")
-    echo "$*" | grep "href" | sed -E 's@<a (href)@\n\1@g' | awk -F 'href=' '{print $2}' | cut -d '"' -f 2 | cut -d "/" -f 1 | grep -v '\.\.'
-    ;;
-  esac
-}
 function select_mirror() {
   case ${MIRROR} in
   "bfsu")
     export LXC_MIRROR=${LXC_MIRROR_BFSU}
-    export PARROTOS_MIRROR=${PARROTOS_MIRROR_BFSU}
     ;;
   "tuna")
     export LXC_MIRROR=${LXC_MIRROR_TUNA}
-    export PARROTOS_MIRROR=${PARROTOS_MIRROR_TUNA}
     ;;
   "nju")
     export LXC_MIRROR=${LXC_MIRROR_NJU}
-    export PARROTOS_MIRROR=${PARROTOS_MIRROR_NJU}
     ;;
   "iscas")
     export LXC_MIRROR=${LXC_MIRROR_ISCAS}
-    export PARROTOS_MIRROR=${PARROTOS_MIRROR_ISCAS}
     ;;
   "main" | "")
     export LXC_MIRROR=${LXC_MIRROR_MAIN}
-    export PARROTOS_MIRROR=${PARROTOS_MIRROR_MAIN}
     ;;
   *)
     echo -e "\033[31mUnknow mirror!\033[0m"
@@ -95,7 +69,7 @@ function show_helps() {
   echo -e "  search,s     #Search available versions of distro"
   echo -e "  url,u        #Get rootfs download link"
   echo -e "  download,d   #Download rootfs as rootfs.tar.xz"
-  echo -e "  exec,e       #Exec a function *Only for developer"
+  echo -e "  exec,e       #Exec a built-in function *Only for developer"
   echo
   echo -e "Args:"
   echo -e "--distro,-d    #Specify os distro"
@@ -159,21 +133,11 @@ function list_distros() {
   for i in $(curl -sL ${LXC_MIRROR}/meta/1.0/index-system | grep ${CPU_ARCH} | grep -v cloud | cut -d ";" -f 1 | uniq); do
     echo -e "${MAIN_COLOR}[${CPU_ARCH}] $i"
   done
-  for VERSION in $(format_html $(curl -sL ${PARROTOS_MIRROR})); do
-    if [[ $(curl -sL ${PARROTOS_MIRROR}/${VERSION} | grep "tar.xz" | grep ${CPU_ARCH} | grep -v "torrent" | head -n 1) != "" ]]; then
-      echo -e "${MAIN_COLOR}[${CPU_ARCH}] parrot"
-      break
-    fi
-  done
   printf "\033[0m"
 }
 function list_distro_version() {
   # If the version of the distro is available, print it
   # $MIRROR, $DISTRO and $CPU_ARCH are defined at main()
-  if [[ ${DISTRO} == "parrot" ]]; then
-    list_parrotos_version
-    return 0
-  fi
   if [[ ${DISTRO} == "" ]]; then
     echo -e "\033[31mOS distro not set.\033[0m"
     exit 1
@@ -192,31 +156,9 @@ function list_distro_version() {
   done
   printf "\033[0m"
 }
-function list_parrotos_version() {
-  if [[ ${CPU_ARCH} == "" ]]; then
-    get_cpu_arch
-  fi
-  export MIRROR=${MIRROR}
-  select_mirror
-  for VERSION in $(format_html $(curl -sL ${PARROTOS_MIRROR})); do
-    if [[ $(curl -sL ${PARROTOS_MIRROR}/${VERSION} | grep "tar.xz" | grep ${CPU_ARCH} | grep -v "torrent" | head -n 1) != "" ]]; then
-      VERSION_FOUND=1
-      echo -e "${MAIN_COLOR}[${CPU_ARCH}] ${DISTRO} : ${VERSION}"
-    fi
-  done
-  if [[ ${VERSION_FOUND} != 1 ]]; then
-    echo -e "\033[31mCould not found image for current cpu architecture.\033[0m"
-    exit 1
-  fi
-  printf "\033[0m"
-}
 function get_rootfs_url() {
   # Get rootfs download link of Specified $DISTRO and $VERSION
   # $MIRROR, $DISTRO, $VERSION and $CPU_ARCH are defined at main()
-  if [[ ${DISTRO} == "parrot" ]]; then
-    get_parrotos_url
-    return 0
-  fi
   if [[ ${CPU_ARCH} == "" ]]; then
     get_cpu_arch
   fi
@@ -228,34 +170,7 @@ function get_rootfs_url() {
 function download_rootfs() {
   # $MIRROR, $DISTRO, $VERSION and $CPU_ARCH are defined at main()
   rm -f rootfs.tar.xz
-  if [[ ${DISTRO} == "parrot" ]]; then
-    rm -f Parrot-rootfs*
-    wget $(get_parrotos_url 2>/dev/null)
-    echo -e "${MAIN_COLOR}Repacking rootfs..."
-    sleep 2s
-    proot -0 tar -xvf $(ls Parrot-rootfs*)
-    cd parrot-${CPU_ARCH}
-    proot -0 tar -cvJf ../rootfs.tar.xz .
-    cd ..
-    proot -0 rm -rf parrot-${CPU_ARCH}
-    rm -f Parrot-rootfs*
-    return 0
-  fi
   wget $(get_rootfs_url)
-}
-function get_parrotos_url() {
-  if [[ ${CPU_ARCH} == "" ]]; then
-    get_cpu_arch
-  fi
-  export MIRROR=${MIRROR}
-  select_mirror
-  ROOTFS=$(format_html $(curl -sL ${PARROTOS_MIRROR}/${VERSION}) | grep "tar.xz" | grep ${CPU_ARCH} | grep -v "torrent" | head -n 1)
-  if [[ ${ROOTFS} == "" ]]; then
-    echo -e "\033[31mError: Can not find rootfs !\033[0m"
-    exit 1
-  fi
-  echo "${PARROTOS_MIRROR}/${VERSION}/${ROOTFS}"
-  echo "Note: you may need to repack the rootfs's \`parrot-${CPU_ARCH}/\` directory as \`./\` to make it to be a common rootfs." >&2
 }
 function exec_function() {
   # *Only for developer.
