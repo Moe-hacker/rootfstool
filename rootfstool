@@ -17,7 +17,7 @@
 # limitations under the License.
 #
 #
-ROOTFSTOOL_VERSION="1.5"
+ROOTFSTOOL_VERSION="1.5-hotfix"
 RGB_MAIN_COLOR="254;228;208"
 MAIN_COLOR="\033[1;38;2;${RGB_MAIN_COLOR}m"
 LXC_MIRROR_MAIN="http://images.linuxcontainers.org"
@@ -49,13 +49,11 @@ function select_mirror() {
   esac
 }
 function list_mirrors() {
-  printf "${MAIN_COLOR}"
   echo main
   echo bfsu
   echo tuna
   echo nju
   echo iscas
-  printf "\033[0m"
 }
 function show_helps() {
   echo -e "${MAIN_COLOR}Usage:"
@@ -131,9 +129,8 @@ function list_distros() {
   export MIRROR=${MIRROR}
   select_mirror
   for i in $(curl -sL ${LXC_MIRROR}/meta/1.0/index-system | grep ${CPU_ARCH} | grep -v cloud | cut -d ";" -f 1 | uniq); do
-    echo -e "${MAIN_COLOR}[${CPU_ARCH}] $i"
+    echo -e "[${CPU_ARCH}] $i"
   done
-  printf "\033[0m"
 }
 function list_distro_version() {
   # If the version of the distro is available, print it
@@ -152,9 +149,8 @@ function list_distro_version() {
     exit 1
   fi
   for i in $(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${CPU_ARCH} | grep -v cloud | cut -d ";" -f 1,2); do
-    echo -e "${MAIN_COLOR}[${CPU_ARCH}] $(echo $i | cut -d ";" -f 1) : $(echo $i | cut -d ";" -f 2)"
+    echo -e "[${CPU_ARCH}] $(echo $i | cut -d ";" -f 1) : $(echo $i | cut -d ";" -f 2)"
   done
-  printf "\033[0m"
 }
 function get_rootfs_url() {
   # Get rootfs download link of Specified $DISTRO and $VERSION
