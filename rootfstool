@@ -160,7 +160,7 @@ function get_rootfs_url() {
   fi
   export MIRROR=${MIRROR}
   select_mirror
-  PATH=$(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${CPU_ARCH} | grep -v cloud | tail -n 1 | cut -d ";" -f 6)
+  PATH=$(curl -sL "${LXC_MIRROR}/meta/1.0/index-system" | grep ${DISTRO} | grep ${VERSION} | grep ${CPU_ARCH} | grep -v cloud | tail -n 1 | cut -d ";" -f 6)
   echo ${LXC_MIRROR}${PATH}rootfs.tar.xz
 }
 function download_rootfs() {
