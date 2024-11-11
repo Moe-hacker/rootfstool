@@ -2,6 +2,8 @@
 <p align="center">虫の死骸と土になれるかな」</p>  
 
 -------- 
+# Discarded project
+Please use [rurima](https://github.com/Moe-hacker/rurima) instead.       
 ## About:
 Rootfstool is a tool to get linux container rootfs from Lxc-image mirrors.             
 ## Dependencies:
@@ -42,9 +44,6 @@ Get rootfs download link of Ubuntu bionic arm64
 ```
 rootfstool url -a arm64 -d ubuntu -v bionic -m bfsu
 ```
-## Contributing:
-See :      
-**[<kbd> <br> Contributing <br> </kbd>](https://github.com/Moe-hacker/rootfstool/blob/main/CONTRIBUTING.md)**
 ## Thanks to:
 [tmoe](https://github.com/2moe/tmoe)    
 (TMOE, More Optional Environments.)      
